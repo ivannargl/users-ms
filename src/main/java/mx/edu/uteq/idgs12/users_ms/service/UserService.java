@@ -1,5 +1,8 @@
 package mx.edu.uteq.idgs12.users_ms.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,7 +13,6 @@ import mx.edu.uteq.idgs12.users_ms.dto.UserResponseDTO;
 import mx.edu.uteq.idgs12.users_ms.entity.User;
 import mx.edu.uteq.idgs12.users_ms.repository.UserRepository;
 
-
 @Service
 public class UserService {
 
@@ -18,6 +20,14 @@ public class UserService {
     private UserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    /** Obtener todos los usuarios de una universidad */
+    public List<UserResponseDTO> getUsersByUniversity(Integer idUniversity, Boolean onlyActive) {
+        return userRepository.findByIdUniversity(idUniversity).stream()
+                .filter(u -> onlyActive == null || !onlyActive || Boolean.TRUE.equals(u.getStatus()))
+                .map(this::mapToResponse)
+                .toList();
+    }
 
     /** Cambiar contraseña */
     public boolean changePassword(Integer userId, ChangePasswordDTO dto) {
